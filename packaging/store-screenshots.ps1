@@ -68,6 +68,7 @@ Start-Sleep -Seconds 6
 function Shot([string] $Name, [int] $Left = 120) {
     $keep = if ($p) { [uint32]$p.Id } else { [uint32]0 }
     [W]::CloseDialogs($keep)
+    Get-Process SystemProperties*, SystemSettingsAdminFlows -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     [void][W]::SetCursorPos(960, 120)   # keep the pointer and tooltips out of the shot
     Start-Sleep -Milliseconds 800
     $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
@@ -80,6 +81,10 @@ function Shot([string] $Name, [int] $Left = 120) {
     $crop.Dispose(); $g.Dispose(); $bmp.Dispose()
     Write-Host "Saved $Name.png (${w}x$h)"
 }
+
+Get-Process SystemProperties* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 20   # let the machine's own start-up pop-ups appear and get closed first
+[W]::CloseDialogs(0); Get-Process SystemProperties* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 # 1. A focus session under way (taskbar shows progress + minutes badge).
 $p = Start-Process -FilePath $Exe -ArgumentList '--start' -PassThru
