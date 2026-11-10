@@ -23,6 +23,27 @@ public static class Win {
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string cls, string title);
     [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
+    [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+    public delegate bool EnumProc(IntPtr h, IntPtr l);
+    [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
+    [DllImport("user32.dll")] public static extern bool EnumChildWindows(IntPtr p, EnumProc f, IntPtr l);
+    public static string Describe(uint pid) {
+        var sb = new System.Text.StringBuilder();
+        EnumWindows((h, l) => {
+            uint p; GetWindowThreadProcessId(h, out p);
+            if (p == pid) {
+                var c = new System.Text.StringBuilder(256); var t = new System.Text.StringBuilder(512);
+                GetClassName(h, c, 256); GetWindowText(h, t, 512);
+                sb.AppendLine("  window class='" + c + "' title='" + t + "'");
+                EnumChildWindows(h, (ch, l2) => {
+                    var t2 = new System.Text.StringBuilder(1024); GetWindowText(ch, t2, 1024);
+                    if (t2.Length > 0) sb.AppendLine("    child text: " + t2);
+                    return true; }, IntPtr.Zero);
+            }
+            return true; }, IntPtr.Zero);
+        return sb.ToString();
+    }
 }
 '@
 
@@ -53,7 +74,9 @@ Start-Sleep -Seconds 4
 if ($p.HasExited) { throw "Pomobar exited early (code $($p.ExitCode))" }
 
 $title = Get-Title 'WilliamsAutomation.Pomobar.Main'
-if (-not $title) { throw 'Main window not found' }
+Write-Host "Windows owned by Pomobar (pid $($p.Id)):"
+Write-Host ([Win]::Describe([uint32]$p.Id))
+if (-not $title) { Save-Screen '0-no-window'; throw 'Main window not found' }
 Write-Host "Main window title while running: '$title'"
 if ($title -notmatch '^\d\d:\d\d') { throw "Title should start with the time left, got '$title'" }
 Save-Screen '1-running'
