@@ -65,6 +65,8 @@ pub struct Settings {
     /// Also show the minutes left in the notification area (system tray).
     pub tray_icon: bool,
     pub always_on_top: bool,
+    /// Minimising shows a small always-on-top timer instead of just the taskbar button.
+    pub mini_mode: bool,
 }
 
 impl Default for Settings {
@@ -79,6 +81,7 @@ impl Default for Settings {
             alert: AlertStyle::Sound,
             tray_icon: true,
             always_on_top: false,
+            mini_mode: true,
         }
     }
 }
@@ -111,6 +114,8 @@ pub struct Stored {
     pub settings: Settings,
     /// Top-left corner of the main window, in screen pixels.
     pub window_pos: Option<(i32, i32)>,
+    /// Top-left corner of the mini timer, in screen pixels.
+    pub mini_pos: Option<(i32, i32)>,
     /// The day `stats_completed` refers to, as YYYY-MM-DD (local time).
     pub stats_date: Option<String>,
     pub stats_completed: u32,
@@ -120,6 +125,7 @@ impl Stored {
     pub fn parse(text: &str) -> Stored {
         let mut st = Stored::default();
         let (mut wx, mut wy) = (None, None);
+        let (mut mx, mut my) = (None, None);
         for line in text.lines() {
             let line = line.trim();
             if line.is_empty() || line.starts_with(['#', ';', '[']) {
@@ -139,6 +145,9 @@ impl Stored {
                 "auto_start_focus" => set_bool(&mut s.auto_start_focus, value),
                 "tray_icon" => set_bool(&mut s.tray_icon, value),
                 "always_on_top" => set_bool(&mut s.always_on_top, value),
+                "mini_mode" => set_bool(&mut s.mini_mode, value),
+                "mini_x" => mx = value.parse::<i32>().ok(),
+                "mini_y" => my = value.parse::<i32>().ok(),
                 "alert" => {
                     if let Some(a) = AlertStyle::from_key(value) {
                         s.alert = a;
@@ -158,6 +167,9 @@ impl Stored {
         st.settings = st.settings.clamped();
         if let (Some(x), Some(y)) = (wx, wy) {
             st.window_pos = Some((x, y));
+        }
+        if let (Some(x), Some(y)) = (mx, my) {
+            st.mini_pos = Some((x, y));
         }
         st
     }
@@ -180,9 +192,14 @@ impl Stored {
         put("alert", s.alert.key().to_string());
         put("tray_icon", bool_str(s.tray_icon));
         put("always_on_top", bool_str(s.always_on_top));
+        put("mini_mode", bool_str(s.mini_mode));
         if let Some((x, y)) = self.window_pos {
             put("window_x", x.to_string());
             put("window_y", y.to_string());
+        }
+        if let Some((x, y)) = self.mini_pos {
+            put("mini_x", x.to_string());
+            put("mini_y", y.to_string());
         }
         if let Some(d) = &self.stats_date {
             put("stats_date", d.clone());
@@ -259,8 +276,10 @@ mod tests {
                 alert: AlertStyle::SilentPopup,
                 tray_icon: false,
                 always_on_top: true,
+                mini_mode: false,
             },
             window_pos: Some((-1200, 40)),
+            mini_pos: Some((10, 700)),
             stats_date: Some("2026-11-10".into()),
             stats_completed: 7,
         };

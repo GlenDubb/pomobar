@@ -33,6 +33,7 @@ pub struct TextStyles {
     pub heading: IDWriteTextFormat,
     pub body: IDWriteTextFormat,
     pub popup_button: IDWriteTextFormat,
+    pub mini_time: IDWriteTextFormat,
 }
 
 pub struct Gfx {
@@ -66,6 +67,7 @@ impl Gfx {
                 heading: format(&dwrite, &display, semi, 22.0, leading, false)?,
                 body: format(&dwrite, &ui, normal, 15.0, leading, true)?,
                 popup_button: format(&dwrite, &ui, semi, 15.0, center, false)?,
+                mini_time: format(&dwrite, &display, semi, 24.0, center, false)?,
             };
             Ok(Gfx { factory, dwrite, text })
         }

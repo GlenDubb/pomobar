@@ -25,6 +25,14 @@ public static class Win {
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
     [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+    [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
+    public static IntPtr Find(uint pid, string cls) {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((h, l) => { uint p; GetWindowThreadProcessId(h, out p);
+            var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
+            if (p == pid && c.ToString() == cls) { found = h; return false; } return true; }, IntPtr.Zero);
+        return found;
+    }
     public delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumChildWindows(IntPtr p, EnumProc f, IntPtr l);
@@ -97,6 +105,19 @@ $popup = Get-Title 'WilliamsAutomation.Pomobar.Alert'
 if ($null -eq $popup) { throw 'The end-of-session pop-up did not appear' }
 Write-Host "Pop-up is showing. Main title now: '$(Get-Title 'WilliamsAutomation.Pomobar.Main')'"
 Save-Screen '2-session-ended'
+
+# Minimising should bring up the mini timer above the taskbar.
+$main = [Win]::Find([uint32]$p.Id, 'WilliamsAutomation.Pomobar.Main')
+[void][Win]::ShowWindow($main, 6)  # SW_MINIMIZE
+Start-Sleep -Seconds 2
+if ($p.HasExited) { throw "Pomobar exited when minimised (code $($p.ExitCode))" }
+if ($null -eq (Get-Title 'WilliamsAutomation.Pomobar.Mini')) { throw 'Mini timer did not appear when minimised' }
+Write-Host 'Mini timer is showing.'
+Save-Screen '3-mini-mode'
+[void][Win]::ShowWindow($main, 9)  # SW_RESTORE
+Start-Sleep -Seconds 1
+if ($null -ne (Get-Title 'WilliamsAutomation.Pomobar.Mini')) { throw 'Mini timer should close when the window is restored' }
+Write-Host 'Mini timer closed on restore.'
 
 Stop-Process -Id $p.Id -Force
 Write-Host 'Smoke test passed.'

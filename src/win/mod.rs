@@ -4,6 +4,7 @@ mod alert;
 mod app;
 mod gfx;
 mod icons;
+mod mini;
 mod settings_dialog;
 mod sound;
 mod taskbar;

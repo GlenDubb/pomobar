@@ -29,7 +29,7 @@ use crate::settings::{AlertStyle, Settings, EVERY_MAX, EVERY_MIN, MINUTES_MAX, M
 
 const CLASS: PCWSTR = w!("WilliamsAutomation.Pomobar.Settings");
 const WIDTH: f32 = 360.0;
-const HEIGHT: f32 = 478.0;
+const HEIGHT: f32 = 506.0;
 
 const ID_FOCUS: i32 = 1001;
 const ID_SHORT: i32 = 1002;
@@ -42,6 +42,7 @@ const ID_ALERT_SILENT: i32 = 1021;
 const ID_ALERT_BOTH: i32 = 1022;
 const ID_TRAY: i32 = 1030;
 const ID_TOP: i32 = 1031;
+const ID_MINI: i32 = 1032;
 
 /// The dialog's window and its controls' positions (in DIPs) for re-layout on DPI changes.
 pub struct Dialog {
@@ -224,6 +225,8 @@ unsafe fn build(app: &App, d: &mut Dialog) {
     child(d, app, w!("BUTTON"), "Show minutes left in the notification area", WS_GROUP.0 | tab | BS_AUTOCHECKBOX as u32, none, ID_TRAY, [x0, y, x1, y + 24.0]);
     y += 28.0;
     child(d, app, w!("BUTTON"), "Keep Pomobar on top of other windows", tab | BS_AUTOCHECKBOX as u32, none, ID_TOP, [x0, y, x1, y + 24.0]);
+    y += 28.0;
+    child(d, app, w!("BUTTON"), "When minimised, show a mini timer above the taskbar", tab | BS_AUTOCHECKBOX as u32, none, ID_MINI, [x0, y, x1, y + 24.0]);
 
     let by = HEIGHT - 20.0 - 30.0;
     child(d, app, w!("BUTTON"), "Save", WS_GROUP.0 | tab | BS_DEFPUSHBUTTON as u32, none, IDOK.0, [x1 - 186.0, by, x1 - 98.0, by + 30.0]);
@@ -293,6 +296,7 @@ unsafe fn load_values(hwnd: HWND, s: Settings) {
     check(ID_ALERT_BOTH, s.alert == AlertStyle::SoundAndPopup);
     check(ID_TRAY, s.tray_icon);
     check(ID_TOP, s.always_on_top);
+    check(ID_MINI, s.mini_mode);
 }
 
 unsafe fn read_values(hwnd: HWND, current: Settings) -> Settings {
@@ -323,6 +327,7 @@ unsafe fn read_values(hwnd: HWND, current: Settings) -> Settings {
         alert,
         tray_icon: checked(ID_TRAY),
         always_on_top: checked(ID_TOP),
+        mini_mode: checked(ID_MINI),
     }
     .clamped()
 }

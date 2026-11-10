@@ -32,6 +32,7 @@ Pomobar is a native Windows app: it starts instantly, uses very little memory an
 - Automatic long break after the number of sessions you choose
 - Optional auto-start for breaks and focus sessions
 - Start, pause, skip and reset from the taskbar thumbnail
+- Mini timer: minimise and a small minutes-and-seconds timer sits just above the taskbar
 - Optional minutes-left icon in the notification area
 - Keyboard shortcuts for everything
 - Tiny, native and private: no ads, accounts, tracking or internet access

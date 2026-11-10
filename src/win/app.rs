@@ -35,7 +35,7 @@ use windows::Win32::UI::Shell::{NINF_KEY, NIN_SELECT, THBN_CLICKED};
 
 const NIN_KEYSELECT: u32 = NIN_SELECT | NINF_KEY;
 use windows::Win32::UI::WindowsAndMessaging::{
-    AllowSetForegroundWindow, AppendMenuW, CreatePopupMenu, CreateWindowExW, DefWindowProcW,
+    SIZE_MINIMIZED, SIZE_RESTORED, AllowSetForegroundWindow, AppendMenuW, CreatePopupMenu, CreateWindowExW, DefWindowProcW,
     DestroyMenu, DestroyWindow, DispatchMessageW, FindWindowW, FlashWindowEx, GetForegroundWindow,
     GetCursorPos, GetMessageW, GetWindowLongPtrW, GetWindowRect, GetWindowThreadProcessId, IsDialogMessageW, IsIconic,
     IsWindowVisible, KillTimer, LoadCursorW, LoadIconW, MessageBoxW, PostMessageW, PostQuitMessage,
@@ -54,6 +54,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 use super::alert::{self, Action, Content};
 use super::gfx::{Gfx, Surface};
 use super::icons::{self, Shape};
+use super::mini;
 use super::settings_dialog;
 use super::sound;
 use super::taskbar::{Taskbar, ThumbIcons, BTN_RESET, BTN_SKIP, BTN_TOGGLE};
@@ -88,6 +89,7 @@ pub struct App {
     dpi: Cell<u32>,
     timer: Cell<Timer>,
     window_pos: Cell<Option<(i32, i32)>>,
+    mini_pos: Cell<Option<(i32, i32)>>,
     stats_date: RefCell<String>,
     surface: RefCell<Option<Surface>>,
     hover: Cell<Option<Hit>>,
@@ -104,6 +106,7 @@ pub struct App {
     last_title: RefCell<String>,
     pub popup: RefCell<Option<alert::Popup>>,
     pub dialog: RefCell<Option<settings_dialog::Dialog>>,
+    pub mini: RefCell<Option<mini::Mini>>,
     msg_taskbar_created: u32,
     msg_button_created: u32,
 }
@@ -156,6 +159,7 @@ pub fn run() {
         dpi: Cell::new(96),
         timer: Cell::new(Timer::new(initial, completed, if demo { 1_000 } else { 60_000 })),
         window_pos: Cell::new(stored.window_pos),
+        mini_pos: Cell::new(stored.mini_pos),
         stats_date: RefCell::new(date),
         surface: RefCell::new(None),
         hover: Cell::new(None),
@@ -177,6 +181,7 @@ pub fn run() {
         last_title: RefCell::new(String::new()),
         popup: RefCell::new(None),
         dialog: RefCell::new(None),
+        mini: RefCell::new(None),
         msg_taskbar_created: unsafe { RegisterWindowMessageW(w!("TaskbarCreated")) },
         msg_button_created: unsafe { RegisterWindowMessageW(w!("TaskbarButtonCreated")) },
     }));
@@ -258,6 +263,7 @@ unsafe fn register_classes(hinst: HINSTANCE) {
     RegisterClassExW(&wc);
     alert::register(hinst, small, cursor);
     settings_dialog::register(hinst, small, cursor);
+    mini::register(hinst, cursor);
 }
 
 unsafe fn create_main_window(app: &'static App, saved_pos: Option<(i32, i32)>) -> bool {
@@ -340,6 +346,19 @@ impl App {
 
     pub fn settings(&self) -> Settings {
         self.timer.get().settings()
+    }
+
+    pub fn timer(&self) -> Timer {
+        self.timer.get()
+    }
+
+    pub fn mini_pos(&self) -> Option<(i32, i32)> {
+        self.mini_pos.get()
+    }
+
+    pub fn set_mini_pos(&self, x: i32, y: i32) {
+        self.mini_pos.set(Some((x, y)));
+        self.save();
     }
 
     fn update_timer<R>(&self, f: impl FnOnce(&mut Timer) -> R) -> R {
@@ -536,6 +555,9 @@ impl App {
                 let _ = SetWindowPos(self.hwnd(), Some(after), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
         }
+        if !new.mini_mode {
+            mini::hide(self);
+        }
         self.badge_key.set(None);
         self.save();
         self.after_change();
@@ -550,13 +572,14 @@ impl App {
         let st = Stored {
             settings: t.settings(),
             window_pos: self.window_pos.get(),
+            mini_pos: self.mini_pos.get(),
             stats_date: Some(self.stats_date.borrow().clone()),
             stats_completed: t.completed(),
         };
         let _ = settings::save(path, &st);
     }
 
-    fn show_main(&self) {
+    pub fn show_main(&self) {
         let hwnd = self.hwnd();
         unsafe {
             if IsIconic(hwnd).as_bool() {
@@ -623,6 +646,7 @@ impl App {
         unsafe {
             let _ = InvalidateRect(Some(hwnd), None, false);
         }
+        mini::invalidate(self);
     }
 
     /// Redraw the minutes badge on the taskbar button and in the tray.
@@ -738,7 +762,7 @@ impl App {
         }
     }
 
-    fn tray_menu(&self, x: i32, y: i32) {
+    pub fn tray_menu(&self, x: i32, y: i32) {
         let hwnd = self.hwnd();
         let toggle = match self.timer.get().phase() {
             Phase::Idle => w!("Start"),
@@ -795,6 +819,7 @@ impl App {
         }
         alert::close(self);
         settings_dialog::close(self);
+        mini::hide(self);
         self.save();
         self.remove_tray();
         if let Some(tb) = self.taskbar() {
@@ -838,6 +863,12 @@ impl App {
                 }
                 WM_ERASEBKGND => LRESULT(1),
                 WM_SIZE => {
+                    // Minimised: show the mini timer. Restored: put it away.
+                    match wparam.0 as u32 {
+                        SIZE_MINIMIZED if self.settings().mini_mode => mini::show(self),
+                        SIZE_RESTORED => mini::hide(self),
+                        _ => {}
+                    }
                     if let Ok(s) = self.surface.try_borrow() {
                         if let Some(s) = s.as_ref() {
                             s.resize(u32::from(loword(lparam.0 as usize)), u32::from(hiword(lparam.0 as usize)));

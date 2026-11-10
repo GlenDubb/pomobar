@@ -19,6 +19,9 @@ By [Williams Automation](https://github.com/GlenDubb).
   - play a chime,
   - **silent:** pop up a window that takes focus, so you notice without any sound,
   - both.
+- **Mini timer.** Minimise Pomobar and a small always-on-top `mm:ss` pill appears just
+  above the taskbar. Click it to bring the window back, use its button to pause, or drag
+  it to any edge (it snaps there and remembers). It steps aside for full-screen apps.
 - Taskbar thumbnail buttons to start, pause, skip or reset without opening the window.
 - Auto-start breaks and/or focus sessions, if you like.
 - Remembers your settings, window position and today's session count.
