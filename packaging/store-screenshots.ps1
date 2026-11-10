@@ -20,6 +20,7 @@ public static class W {
     [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string c, string t);
     public delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
     public static IntPtr Find(uint pid, string cls) {
@@ -78,6 +79,8 @@ Shot '1-focus-session'
 
 # 2. Minimised: the mini timer above the taskbar.
 [void][W]::ShowWindow($main, 6); Start-Sleep -Seconds 3
+# Give focus to the desktop so the taskbar's Start button doesn't show a tooltip.
+[void][W]::SetForegroundWindow([W]::FindWindow('Progman', 'Program Manager')); Start-Sleep -Seconds 2
 Shot '2-mini-timer' -Left 0
 Stop-Process -Id $p.Id -Force; Start-Sleep -Seconds 2
 
