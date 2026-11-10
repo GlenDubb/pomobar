@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Launches Pomobar in demo mode, checks it keeps running through a whole
+    Launches WillPomo in demo mode, checks it keeps running through a whole
     session ending (including the pop-up), and saves screenshots.
 
 .DESCRIPTION
@@ -88,10 +88,10 @@ function Get-Title([string] $Class) {
 
 $p = Start-Process -FilePath $Exe -ArgumentList '--demo' -PassThru
 Start-Sleep -Seconds 4
-if ($p.HasExited) { throw "Pomobar exited early (code $($p.ExitCode))" }
+if ($p.HasExited) { throw "WillPomo exited early (code $($p.ExitCode))" }
 
-$title = Get-Title 'WilliamsAutomation.Pomobar.Main'
-Write-Host "Windows owned by Pomobar (pid $($p.Id)):"
+$title = Get-Title 'WilliamsAutomation.WillPomo.Main'
+Write-Host "Windows owned by WillPomo (pid $($p.Id)):"
 Write-Host ([Win]::Describe([uint32]$p.Id))
 if (-not $title) { Save-Screen '0-no-window'; throw 'Main window not found' }
 Write-Host "Main window title while running: '$title'"
@@ -100,23 +100,23 @@ Save-Screen '1-running'
 
 # The demo focus session (25 s) ends; the pop-up should appear.
 Start-Sleep -Seconds 25
-if ($p.HasExited) { throw "Pomobar exited during the session change (code $($p.ExitCode))" }
-$popup = Get-Title 'WilliamsAutomation.Pomobar.Alert'
+if ($p.HasExited) { throw "WillPomo exited during the session change (code $($p.ExitCode))" }
+$popup = Get-Title 'WilliamsAutomation.WillPomo.Alert'
 if ($null -eq $popup) { throw 'The end-of-session pop-up did not appear' }
-Write-Host "Pop-up is showing. Main title now: '$(Get-Title 'WilliamsAutomation.Pomobar.Main')'"
+Write-Host "Pop-up is showing. Main title now: '$(Get-Title 'WilliamsAutomation.WillPomo.Main')'"
 Save-Screen '2-session-ended'
 
 # Minimising should bring up the mini timer above the taskbar.
-$main = [Win]::Find([uint32]$p.Id, 'WilliamsAutomation.Pomobar.Main')
+$main = [Win]::Find([uint32]$p.Id, 'WilliamsAutomation.WillPomo.Main')
 [void][Win]::ShowWindow($main, 6)  # SW_MINIMIZE
 Start-Sleep -Seconds 2
-if ($p.HasExited) { throw "Pomobar exited when minimised (code $($p.ExitCode))" }
-if ($null -eq (Get-Title 'WilliamsAutomation.Pomobar.Mini')) { throw 'Mini timer did not appear when minimised' }
+if ($p.HasExited) { throw "WillPomo exited when minimised (code $($p.ExitCode))" }
+if ($null -eq (Get-Title 'WilliamsAutomation.WillPomo.Mini')) { throw 'Mini timer did not appear when minimised' }
 Write-Host 'Mini timer is showing.'
 Save-Screen '3-mini-mode'
 [void][Win]::ShowWindow($main, 9)  # SW_RESTORE
 Start-Sleep -Seconds 1
-if ($null -ne (Get-Title 'WilliamsAutomation.Pomobar.Mini')) { throw 'Mini timer should close when the window is restored' }
+if ($null -ne (Get-Title 'WilliamsAutomation.WillPomo.Mini')) { throw 'Mini timer should close when the window is restored' }
 Write-Host 'Mini timer closed on restore.'
 
 Stop-Process -Id $p.Id -Force

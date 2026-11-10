@@ -1,6 +1,6 @@
-# Publishing Pomobar to the Microsoft Store
+# Publishing WillPomo to the Microsoft Store
 
-A step-by-step checklist for getting Pomobar into the Microsoft Store as a
+A step-by-step checklist for getting WillPomo into the Microsoft Store as a
 signed app, for someone who hasn't published a Windows app before.
 
 **Cost:** free. **Your time:** about an hour, spread over a few sittings.
@@ -8,9 +8,9 @@ signed app, for someone who hasn't published a Windows app before.
 
 ## How signing works (why you don't need to buy a certificate)
 
-Pomobar is packaged as **MSIX**. When you submit an MSIX package, Microsoft
+WillPomo is packaged as **MSIX**. When you submit an MSIX package, Microsoft
 signs it with its own certificate after it passes review, so people who install
-Pomobar from the Store get a trusted, signed app with no security warnings, and
+WillPomo from the Store get a trusted, signed app with no security warnings, and
 you never handle a certificate yourself. (A certificate only matters if you
 later want to offer a direct download outside the Store; see the end.)
 
@@ -41,14 +41,14 @@ Things to know before you finish:
   **Company** account (proof of the business, such as a D-U-N-S number or
   registration documents, plus an email address on the business's own domain).
   Microsoft doesn't document a way to move an existing app between accounts, so
-  plan on Pomobar staying where it's first published.
+  plan on WillPomo staying where it's first published.
 - Williams Automation still appears inside the app (About info, copyright and
   this GitHub project).
 
-## 2. Reserve the name "Pomobar"
+## 2. Reserve the name "WillPomo"
 
 - [ ] In Partner Center: **Apps and games › New product › MSIX or PWA app**.
-- [ ] Type `Pomobar`, click **Check availability**, then **Reserve product name**.
+- [ ] Type `WillPomo`, click **Check availability**, then **Reserve product name**.
 - [ ] The reservation lasts **three months**, so submit within that time.
 
 If the name isn't available (someone may have reserved it without publishing),
@@ -76,7 +76,7 @@ minutes).
 - [ ] On GitHub, open the **Actions** tab, then the newest **Build** run with a
       green tick.
 - [ ] Under **Artifacts**, download **pomobar-store-package** and unzip it. Inside
-      is `Pomobar_1.0.0.0.msixbundle`: the file you'll upload. It contains
+      is `WillPomo_1.0.0.0.msixbundle`: the file you'll upload. It contains
       both the x64 and ARM64 versions.
 
 To try the app first, download **pomobar-test-build** and run `pomobar.exe`.
@@ -86,7 +86,7 @@ Store version.
 
 ## 5. Create the submission
 
-In Partner Center, open Pomobar and click **Start submission**. Work through each
+In Partner Center, open WillPomo and click **Start submission**. Work through each
 section. Ready-to-paste text for the listing is in
 [`store/listing.md`](../store/listing.md).
 
@@ -102,24 +102,24 @@ section. Ready-to-paste text for the listing is in
 - [ ] Support contact: `https://github.com/GlenDubb/pomobar/issues`
 
 **Age ratings**
-- [ ] Answer the questionnaire. Pomobar has no violence, no user-to-user
+- [ ] Answer the questionnaire. WillPomo has no violence, no user-to-user
       interaction, no purchases and doesn't share data, so it should come out as
       suitable for everyone.
 
 **Packages**
-- [ ] Upload `Pomobar_1.0.0.0.msixbundle` and wait for it to show as validated.
+- [ ] Upload `WillPomo_1.0.0.0.msixbundle` and wait for it to show as validated.
 
 **Store listings** (English)
 - [ ] Description and product features: copy from `store/listing.md`.
 - [ ] Screenshots: **at least one** PNG, **1366 × 768 or larger** (up to 10;
-      four is recommended). Easiest: run Pomobar, press <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>,
+      four is recommended). Easiest: run WillPomo, press <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>,
       capture your full screen with a session running (so the taskbar badge
       shows), and save as PNG. One of the end-of-session pop-up is good too.
 - [ ] Store logo (optional): `store/box-art-2160.png` works as the 1:1 box art.
 
 **Submission options**
-- [ ] Restricted capabilities: Pomobar declares `runFullTrust`. Explain:
-      *"Pomobar is a native Win32 desktop application packaged as MSIX. The
+- [ ] Restricted capabilities: WillPomo declares `runFullTrust`. Explain:
+      *"WillPomo is a native Win32 desktop application packaged as MSIX. The
       runFullTrust capability is required for desktop apps."*
 - [ ] Notes for certification: copy from `store/listing.md`.
 
@@ -128,9 +128,9 @@ section. Ready-to-paste text for the listing is in
 ## 6. After you submit
 
 - Review can take up to three business days. Partner Center shows progress, and
-  you'll get an email when Pomobar is live or if something needs fixing (the
+  you'll get an email when WillPomo is live or if something needs fixing (the
   report says exactly what).
-- Once published, Pomobar has a Store page and installs as a Microsoft-signed app.
+- Once published, WillPomo has a Store page and installs as a Microsoft-signed app.
 
 ## Releasing an update later
 
@@ -156,5 +156,5 @@ download on GitHub, the options for an individual in Australia are:
 
 "Pomodoro" and "Pomodoro Technique" are trademarks of Francesco Cirillo, whose
 company says that using "Pomodoro" in an app's name, subtitle or store
-description requires a licence. That's why the app is called Pomobar and the
+description requires a licence. That's why the app is called WillPomo and the
 listing text in `store/listing.md` avoids the word. (This isn't legal advice.)

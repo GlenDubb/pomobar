@@ -1,4 +1,4 @@
-//! Pomobar: a lightweight focus timer for Windows that shows the time left on your taskbar.
+//! WillPomo: a lightweight focus timer for Windows that shows the time left on your taskbar.
 //!
 //! Copyright (c) 2026 Williams Automation. Released under the MIT License.
 //!
@@ -24,5 +24,5 @@ fn main() {
 
 #[cfg(not(windows))]
 fn main() {
-    eprintln!("Pomobar is a Windows application. Build it with a Windows target.");
+    eprintln!("WillPomo is a Windows application. Build it with a Windows target.");
 }

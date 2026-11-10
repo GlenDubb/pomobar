@@ -27,7 +27,7 @@ use super::app::App;
 use super::util::{scale, window_size};
 use crate::settings::{AlertStyle, Settings, EVERY_MAX, EVERY_MIN, MINUTES_MAX, MINUTES_MIN};
 
-const CLASS: PCWSTR = w!("WilliamsAutomation.Pomobar.Settings");
+const CLASS: PCWSTR = w!("WilliamsAutomation.WillPomo.Settings");
 const WIDTH: f32 = 360.0;
 const HEIGHT: f32 = 506.0;
 
@@ -84,7 +84,7 @@ pub fn open(app: &App) {
         let Ok(hwnd) = CreateWindowExW(
             ex,
             CLASS,
-            w!("Pomobar settings"),
+            w!("WillPomo settings"),
             style,
             owner_rc.left + 20,
             owner_rc.top + 20,
@@ -224,7 +224,7 @@ unsafe fn build(app: &App, d: &mut Dialog) {
 
     child(d, app, w!("BUTTON"), "Show minutes left in the notification area", WS_GROUP.0 | tab | BS_AUTOCHECKBOX as u32, none, ID_TRAY, [x0, y, x1, y + 24.0]);
     y += 28.0;
-    child(d, app, w!("BUTTON"), "Keep Pomobar on top of other windows", tab | BS_AUTOCHECKBOX as u32, none, ID_TOP, [x0, y, x1, y + 24.0]);
+    child(d, app, w!("BUTTON"), "Keep WillPomo on top of other windows", tab | BS_AUTOCHECKBOX as u32, none, ID_TOP, [x0, y, x1, y + 24.0]);
     y += 28.0;
     child(d, app, w!("BUTTON"), "When minimised, show a mini timer above the taskbar", tab | BS_AUTOCHECKBOX as u32, none, ID_MINI, [x0, y, x1, y + 24.0]);
 

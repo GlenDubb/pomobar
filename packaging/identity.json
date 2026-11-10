@@ -1,6 +1,6 @@
 {
-  "_readme": "Placeholder values for local testing. Before submitting to the Microsoft Store, replace all three with the values on Partner Center > your app > Product management > Product identity. They must match exactly.",
-  "Name": "WilliamsAutomation.Pomobar",
-  "Publisher": "CN=Williams Automation",
+  "_readme": "Store identity from Partner Center > WillPomo > Product management > Product identity. These must match exactly.",
+  "Name": "WilliamsAutomation.WillPomo",
+  "Publisher": "CN=AE131FA4-AEC3-42D7-A3D4-4163C7365D1B",
   "PublisherDisplayName": "Williams Automation"
 }

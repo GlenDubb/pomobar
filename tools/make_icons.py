@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draws the Pomobar icon and writes every size Windows and the Store need.
+"""Draws the WillPomo icon and writes every size Windows and the Store need.
 
     pip install pillow
     python tools/make_icons.py
@@ -10,7 +10,7 @@ Outputs (all committed, so builds don't need Python):
     store/box-art-2160.png              optional 1:1 Store listing artwork
 
 The design: a tomato with a white progress bar across it, a nod to the
-progress bar Pomobar shows on its taskbar button.
+progress bar WillPomo shows on its taskbar button.
 """
 
 import io

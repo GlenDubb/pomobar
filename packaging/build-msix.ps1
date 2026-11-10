@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds Pomobar and packages it as MSIX (one per architecture) plus an .msixbundle.
+    Builds WillPomo and packages it as MSIX (one per architecture) plus an .msixbundle.
 
 .DESCRIPTION
     Uses the Windows SDK's makepri.exe and makeappx.exe. The packages are not
@@ -61,9 +61,9 @@ $targets = @{ x64 = 'x86_64-pc-windows-msvc'; arm64 = 'aarch64-pc-windows-msvc' 
 
 New-Item -ItemType Directory -Force $OutDir | Out-Null
 $OutDir = (Resolve-Path $OutDir).Path
-Get-ChildItem $OutDir -Filter 'Pomobar_*' -File -ErrorAction SilentlyContinue | Remove-Item -Force
+Get-ChildItem $OutDir -Filter 'WillPomo_*' -File -ErrorAction SilentlyContinue | Remove-Item -Force
 
-Write-Host "Packaging Pomobar $Version for $($Arch -join ', ')"
+Write-Host "Packaging WillPomo $Version for $($Arch -join ', ')"
 $packages = @()
 foreach ($a in $Arch) {
     $target = $targets[$a]
@@ -77,7 +77,7 @@ foreach ($a in $Arch) {
     $stage = Join-Path $OutDir "stage-$a"
     if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
     New-Item -ItemType Directory -Force "$stage/Assets" | Out-Null
-    Copy-Item $exe "$stage/Pomobar.exe"
+    Copy-Item $exe "$stage/WillPomo.exe"
     Copy-Item 'packaging/Assets/*.png' "$stage/Assets/"
     Copy-Item 'LICENSE' "$stage/LICENSE.txt"
     $manifest = (Get-Content 'packaging/AppxManifest.xml' -Raw).
@@ -93,7 +93,7 @@ foreach ($a in $Arch) {
     Invoke-Native $makepri @('createconfig', '/cf', $priConfig, '/dq', 'en-US', '/pv', '10.0.0', '/o')
     Invoke-Native $makepri @('new', '/pr', $stage, '/cf', $priConfig, '/mn', "$stage/AppxManifest.xml", '/of', "$stage/resources.pri", '/o')
 
-    $msix = Join-Path $OutDir "Pomobar_${Version}_$a.msix"
+    $msix = Join-Path $OutDir "WillPomo_${Version}_$a.msix"
     Invoke-Native $makeappx @('pack', '/o', '/h', 'SHA256', '/d', $stage, '/p', $msix)
     $packages += $msix
 }
@@ -103,7 +103,7 @@ if ($packages.Count -gt 1) {
     if (Test-Path $bundleIn) { Remove-Item -Recurse -Force $bundleIn }
     New-Item -ItemType Directory -Force $bundleIn | Out-Null
     $packages | ForEach-Object { Copy-Item $_ $bundleIn }
-    $bundle = Join-Path $OutDir "Pomobar_${Version}.msixbundle"
+    $bundle = Join-Path $OutDir "WillPomo_${Version}.msixbundle"
     Invoke-Native $makeappx @('bundle', '/o', '/bv', $Version, '/d', $bundleIn, '/p', $bundle)
     Write-Host "`nUpload this to Partner Center: $bundle"
 } else {

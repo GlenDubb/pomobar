@@ -5,7 +5,7 @@ Copy and paste into Partner Center. The description field takes plain text only
 
 ## Product name
 
-Pomobar
+WillPomo
 
 ## Short description
 
@@ -13,19 +13,19 @@ A lightweight focus timer that shows the minutes left right on your taskbar, wit
 
 ## Description
 
-Pomobar is a small, fast focus timer that keeps the time left in view without getting in your way.
+WillPomo is a small, fast focus timer that keeps the time left in view without getting in your way.
 
-Work in focused sessions with short breaks in between, and take a longer break every few sessions. While a session runs, Pomobar's taskbar button shows a progress bar and a badge with the minutes left, so a glance at the taskbar is all it takes. You can also show the minutes left in the notification area.
+Work in focused sessions with short breaks in between, and take a longer break every few sessions. While a session runs, WillPomo's taskbar button shows a progress bar and a badge with the minutes left, so a glance at the taskbar is all it takes. You can also show the minutes left in the notification area.
 
-When a session ends, Pomobar can play a gentle chime, or stay completely silent and pop up a window that takes focus, so you notice even with your sound off or headphones out. Its buttons ignore input for a moment, so you can't dismiss it by accident while typing.
+When a session ends, WillPomo can play a gentle chime, or stay completely silent and pop up a window that takes focus, so you notice even with your sound off or headphones out. Its buttons ignore input for a moment, so you can't dismiss it by accident while typing.
 
-Pomobar is a native Windows app: it starts instantly, uses very little memory and has no ads, accounts or tracking. It never connects to the internet.
+WillPomo is a native Windows app: it starts instantly, uses very little memory and has no ads, accounts or tracking. It never connects to the internet.
 
 ## Product features
 
 (Enter one per box. The Store adds the bullets.)
 
-- See the minutes left on Pomobar's taskbar button, with a progress bar
+- See the minutes left on WillPomo's taskbar button, with a progress bar
 - Silent alert option: a pop-up that takes focus instead of a sound
 - Or a gentle chime, or both
 - Focus, short break and long break sessions you can set to any length
@@ -51,6 +51,6 @@ focus timer, study timer, work timer, break reminder, productivity timer, taskba
 
 ## Notes for certification
 
-Pomobar is a native Win32 desktop app (packaged as MSIX, so it declares runFullTrust). No account or sign-in is needed.
+WillPomo is a native Win32 desktop app (packaged as MSIX, so it declares runFullTrust). No account or sign-in is needed.
 
 To see a session end quickly: open Settings (gear icon, bottom right), set Focus to 1 minute, choose "Silent: pop up and take focus", click Save, then click Start. After one minute a pop-up appears and takes focus; its buttons become active after about a second. While a session runs, the taskbar button shows a progress bar and a minutes-left badge.

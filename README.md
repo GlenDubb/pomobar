@@ -1,4 +1,4 @@
-# Pomobar
+# WillPomo
 
 A lightweight focus timer for Windows that keeps the time left in view on your
 taskbar. Work in focused sessions with short breaks in between, and a longer
@@ -11,7 +11,7 @@ By [Williams Automation](https://github.com/GlenDubb).
 
 - **Focus, Short break and Long break** sessions (25 / 5 / 15 minutes by
   default), with a longer break after every 4 focus sessions.
-- **The timer on your taskbar.** While a session runs, Pomobar's taskbar button
+- **The timer on your taskbar.** While a session runs, WillPomo's taskbar button
   shows a progress bar and a badge with the minutes left. The window title (also
   the taskbar label, if you show labels) is the time left, e.g. `18:42 – Focus`.
   Optionally, the minutes left also show in the notification area.
@@ -19,7 +19,7 @@ By [Williams Automation](https://github.com/GlenDubb).
   - play a chime,
   - **silent:** pop up a window that takes focus, so you notice without any sound,
   - both.
-- **Mini timer.** Minimise Pomobar and a small always-on-top `mm:ss` pill appears just
+- **Mini timer.** Minimise WillPomo and a small always-on-top `mm:ss` pill appears just
   above the taskbar. Click it to bring the window back, use its button to pause, or drag
   it to any edge (it snaps there and remembers). It steps aside for full-screen apps.
 - Taskbar thumbnail buttons to start, pause, skip or reset without opening the window.
@@ -27,7 +27,7 @@ By [Williams Automation](https://github.com/GlenDubb).
 - Remembers your settings, window position and today's session count.
 - Crisp at any display scaling; works on Windows 10 (1809+) and Windows 11, x64 and ARM64.
 
-## Using Pomobar
+## Using WillPomo
 
 | Do this | How |
 | --- | --- |
@@ -42,16 +42,16 @@ many sessions are left until the long break.
 
 ### Seeing the timer on the taskbar (Windows 11)
 
-- The **badge** and **progress bar** on Pomobar's taskbar button appear by
+- The **badge** and **progress bar** on WillPomo's taskbar button appear by
   themselves. If you don't see the badge, turn on *Settings › Personalization ›
   Taskbar › Taskbar behaviours › Show badges on taskbar apps*.
 - To see the full `mm:ss` on the taskbar, set *Combine taskbar buttons and hide
   labels* to **Never** in the same place.
-- New notification-area icons start out hidden. To keep Pomobar's visible, turn
+- New notification-area icons start out hidden. To keep WillPomo's visible, turn
   it on under *Settings › Personalization › Taskbar › Other system tray icons*,
   or drag it out of the ^ overflow.
 
-Settings are saved in `%LOCALAPPDATA%\Pomobar\settings.ini`.
+Settings are saved in `%LOCALAPPDATA%\WillPomo\settings.ini`.
 
 ## Building from source
 
@@ -69,7 +69,7 @@ cargo build --release   # target\release\pomobar.exe
 
 ```powershell
 rustup target add aarch64-pc-windows-msvc   # once, for the ARM64 build
-./packaging/build-msix.ps1                  # writes dist\Pomobar_<version>.msixbundle
+./packaging/build-msix.ps1                  # writes dist\WillPomo_<version>.msixbundle
 ```
 
 GitHub Actions runs this on every push, so you can also download the bundle
@@ -79,7 +79,7 @@ signed; the Microsoft Store signs it when you submit. See
 
 ### Testing the packaged app
 
-To run Pomobar the way the Store installs it, turn on Developer Mode (*Settings
+To run WillPomo the way the Store installs it, turn on Developer Mode (*Settings
 › System › For developers*), build the package, then register the unpacked
 layout (no certificate needed):
 
@@ -88,7 +88,7 @@ layout (no certificate needed):
 Add-AppxPackage -Register dist\stage-x64\AppxManifest.xml
 ```
 
-Remove it again with `Get-AppxPackage *Pomobar* | Remove-AppxPackage`.
+Remove it again with `Get-AppxPackage *WillPomo* | Remove-AppxPackage`.
 
 ## How it's built
 
@@ -102,11 +102,11 @@ Remove it again with `Get-AppxPackage *Pomobar* | Remove-AppxPackage`.
 
 ## Privacy
 
-Pomobar collects nothing and never goes online. See [PRIVACY.md](PRIVACY.md).
+WillPomo collects nothing and never goes online. See [PRIVACY.md](PRIVACY.md).
 
 ## Licence
 
 [MIT](LICENSE) © 2026 Williams Automation.
 
 _Pomodoro® and the Pomodoro Technique® are trademarks of Francesco Cirillo.
-Pomobar is not affiliated with, or endorsed by, Francesco Cirillo._
+WillPomo is not affiliated with, or endorsed by, Francesco Cirillo._

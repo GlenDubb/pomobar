@@ -16,7 +16,7 @@
     ProcessorArchitecture="{{ARCH}}" />
 
   <Properties>
-    <DisplayName>Pomobar</DisplayName>
+    <DisplayName>WillPomo</DisplayName>
     <PublisherDisplayName>{{PUBLISHER_DISPLAY_NAME}}</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,9 +30,9 @@
   </Resources>
 
   <Applications>
-    <Application Id="Pomobar" Executable="Pomobar.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="WillPomo" Executable="WillPomo.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Pomobar"
+        DisplayName="WillPomo"
         Description="A lightweight focus timer that shows the time left right on your taskbar."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"

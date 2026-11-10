@@ -40,7 +40,7 @@ use super::app::App;
 use super::gfx::Surface;
 use super::util::{contains, hiword, loword, now_ms, point_from_lparam, rect, set_title_bar_color, white, window_size, Rgb};
 
-const CLASS: PCWSTR = w!("WilliamsAutomation.Pomobar.Alert");
+const CLASS: PCWSTR = w!("WilliamsAutomation.WillPomo.Alert");
 const WIDTH: f32 = 420.0;
 const HEIGHT: f32 = 190.0;
 const GUARD_MS: u64 = 900;
@@ -98,7 +98,7 @@ pub fn register(hinst: HINSTANCE, icon: HICON, cursor: HCURSOR) {
 pub fn show(app: &App, content: Content, take_focus: bool) {
     close(app);
     unsafe {
-        // Appear on the monitor the user is working on, which may not be Pomobar's.
+        // Appear on the monitor the user is working on, which may not be WillPomo's.
         let fg = GetForegroundWindow();
         let anchor = if fg.is_invalid() { app.hwnd() } else { fg };
         let mut mi = MONITORINFO {
@@ -112,7 +112,7 @@ pub fn show(app: &App, content: Content, take_focus: bool) {
         let Ok(hwnd) = CreateWindowExW(
             ex,
             CLASS,
-            w!("Pomobar"),
+            w!("WillPomo"),
             style,
             wa.left + (wa.right - wa.left) / 2 - 200,
             wa.top + (wa.bottom - wa.top) / 2 - 100,

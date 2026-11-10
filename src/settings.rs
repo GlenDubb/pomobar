@@ -1,6 +1,6 @@
-//! User settings, plus the little bit of state Pomobar remembers between runs.
+//! User settings, plus the little bit of state WillPomo remembers between runs.
 //!
-//! Stored as a plain `key=value` text file in `%LOCALAPPDATA%\Pomobar\settings.ini`,
+//! Stored as a plain `key=value` text file in `%LOCALAPPDATA%\WillPomo\settings.ini`,
 //! which keeps the app free of extra dependencies. Unknown keys are ignored and
 //! out-of-range values are clamped, so a hand-edited file can't break anything.
 
@@ -176,7 +176,7 @@ impl Stored {
 
     pub fn to_ini(&self) -> String {
         let s = &self.settings;
-        let mut out = String::from("# Pomobar settings. Edit while Pomobar is closed.\n");
+        let mut out = String::from("# WillPomo settings. Edit while WillPomo is closed.\n");
         let mut put = |k: &str, v: String| {
             out.push_str(k);
             out.push('=');
@@ -237,10 +237,10 @@ fn is_iso_date(s: &str) -> bool {
             .all(|(i, c)| i == 4 || i == 7 || c.is_ascii_digit())
 }
 
-/// `%LOCALAPPDATA%\Pomobar\settings.ini`. When installed from the Store,
+/// `%LOCALAPPDATA%\WillPomo\settings.ini`. When installed from the Store,
 /// Windows transparently keeps this inside the app's own package data.
 pub fn default_path() -> Option<PathBuf> {
-    std::env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join("Pomobar").join("settings.ini"))
+    std::env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join("WillPomo").join("settings.ini"))
 }
 
 pub fn load(path: &Path) -> Stored {

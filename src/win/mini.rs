@@ -40,7 +40,7 @@ use super::gfx::Surface;
 use super::util::{contains, hiword, loword, mode_color, now_ms, rect, scale, white, IDLE_GREY};
 use crate::timer::{format_mmss, Phase};
 
-const CLASS: PCWSTR = w!("WilliamsAutomation.Pomobar.Mini");
+const CLASS: PCWSTR = w!("WilliamsAutomation.WillPomo.Mini");
 const WIDTH: f32 = 140.0;
 const HEIGHT: f32 = 44.0;
 /// Gap between the pill and the screen edge / taskbar, in DIPs.
@@ -101,7 +101,7 @@ pub fn show(app: &App) {
         let Ok(hwnd) = CreateWindowExW(
             ex,
             CLASS,
-            w!("Pomobar"),
+            w!("WillPomo"),
             WS_POPUP,
             0,
             0,

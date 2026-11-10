@@ -67,7 +67,7 @@ use super::util::{
 use crate::settings::{self, AlertStyle, Settings, Stored};
 use crate::timer::{format_mmss, Completion, Mode, Phase, Timer};
 
-const MAIN_CLASS: PCWSTR = w!("WilliamsAutomation.Pomobar.Main");
+const MAIN_CLASS: PCWSTR = w!("WilliamsAutomation.WillPomo.Main");
 /// Posted by a second copy of the app, asking this one to show itself.
 const WM_APP_ACTIVATE: u32 = WM_APP + 2;
 const TIMER_TICK: usize = 1;
@@ -132,7 +132,7 @@ pub fn run() {
     let hinst = unsafe { GetModuleHandleW(None) }.map(|m| HINSTANCE(m.0)).unwrap_or_default();
     let gfx = match Gfx::new() {
         Ok(g) => g,
-        Err(e) => return fatal(&format!("Pomobar couldn't start its graphics.\n\n{e}")),
+        Err(e) => return fatal(&format!("WillPomo couldn't start its graphics.\n\n{e}")),
     };
 
     let store_path = settings::default_path();
@@ -189,7 +189,7 @@ pub fn run() {
     unsafe {
         register_classes(hinst);
         if !create_main_window(app, stored.window_pos) {
-            return fatal("Pomobar couldn't create its window.");
+            return fatal("WillPomo couldn't create its window.");
         }
     }
     if demo {
@@ -214,15 +214,15 @@ pub fn run() {
 
 fn fatal(text: &str) {
     unsafe {
-        MessageBoxW(None, &HSTRING::from(text), w!("Pomobar"), MB_OK | MB_ICONERROR);
+        MessageBoxW(None, &HSTRING::from(text), w!("WillPomo"), MB_OK | MB_ICONERROR);
     }
 }
 
-/// If Pomobar is already running, bring it forward and return true.
+/// If WillPomo is already running, bring it forward and return true.
 fn activate_existing_instance() -> bool {
     unsafe {
         // Deliberately never closed: it marks this process as the running copy.
-        let _mutex = CreateMutexW(None, false, w!("Local\\WilliamsAutomation.Pomobar"));
+        let _mutex = CreateMutexW(None, false, w!("Local\\WilliamsAutomation.WillPomo"));
         if GetLastError() != ERROR_ALREADY_EXISTS {
             return false;
         }
@@ -276,7 +276,7 @@ unsafe fn create_main_window(app: &'static App, saved_pos: Option<(i32, i32)>) -
     let Ok(hwnd) = CreateWindowExW(
         ex,
         MAIN_CLASS,
-        w!("Pomobar"),
+        w!("WillPomo"),
         style,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -421,7 +421,7 @@ impl App {
                 )
             };
             let answer = unsafe {
-                MessageBoxW(Some(self.hwnd()), &HSTRING::from(text), w!("Pomobar"), MB_YESNO | MB_ICONQUESTION)
+                MessageBoxW(Some(self.hwnd()), &HSTRING::from(text), w!("WillPomo"), MB_YESNO | MB_ICONQUESTION)
             };
             if answer != IDYES {
                 return;
@@ -525,7 +525,7 @@ impl App {
         }
     }
 
-    /// Flash the taskbar button until the user switches to Pomobar.
+    /// Flash the taskbar button until the user switches to WillPomo.
     fn flash(&self, on: bool) {
         let info = FLASHWINFO {
             cbSize: std::mem::size_of::<FLASHWINFO>() as u32,
@@ -678,9 +678,9 @@ impl App {
 
     fn tray_tip(&self, t: &Timer, left: &str) -> String {
         match t.phase() {
-            Phase::Idle => format!("Pomobar: ready for {} ({left})", t.mode().label().to_lowercase()),
-            Phase::Running => format!("Pomobar: {}, {left}", t.mode().label().to_lowercase()),
-            Phase::Paused => format!("Pomobar: paused, {left}"),
+            Phase::Idle => format!("WillPomo: ready for {} ({left})", t.mode().label().to_lowercase()),
+            Phase::Running => format!("WillPomo: {}, {left}", t.mode().label().to_lowercase()),
+            Phase::Paused => format!("WillPomo: paused, {left}"),
         }
     }
 
@@ -775,7 +775,7 @@ impl App {
             let _ = AppendMenuW(menu, MF_STRING, CMD_SKIP as usize, w!("Skip to next session"));
             let _ = AppendMenuW(menu, MF_STRING, CMD_RESET as usize, w!("Reset this session"));
             let _ = AppendMenuW(menu, MF_SEPARATOR, 0, PCWSTR::null());
-            let _ = AppendMenuW(menu, MF_STRING, CMD_SHOW as usize, w!("Show Pomobar"));
+            let _ = AppendMenuW(menu, MF_STRING, CMD_SHOW as usize, w!("Show WillPomo"));
             let _ = AppendMenuW(menu, MF_STRING, CMD_SETTINGS as usize, w!("Settings…"));
             let _ = AppendMenuW(menu, MF_SEPARATOR, 0, PCWSTR::null());
             let _ = AppendMenuW(menu, MF_STRING, CMD_EXIT as usize, w!("Exit"));

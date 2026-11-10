@@ -43,12 +43,12 @@ BEGIN
     BLOCK "040904B0"
     BEGIN
       VALUE "CompanyName", "Williams Automation"
-      VALUE "FileDescription", "Pomobar"
+      VALUE "FileDescription", "WillPomo"
       VALUE "FileVersion", "{version}"
       VALUE "InternalName", "pomobar"
       VALUE "LegalCopyright", "Copyright (c) 2026 Williams Automation. MIT License."
       VALUE "OriginalFilename", "pomobar.exe"
-      VALUE "ProductName", "Pomobar"
+      VALUE "ProductName", "WillPomo"
       VALUE "ProductVersion", "{version}"
     END
   END
