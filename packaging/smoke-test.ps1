@@ -28,6 +28,19 @@ public static class Win {
     public delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumChildWindows(IntPtr p, EnumProc f, IntPtr l);
+    // Title of the first top-level window with this class in the process, or null.
+    public static string TitleOf(uint pid, string cls) {
+        string found = null;
+        EnumWindows((h, l) => {
+            uint p; GetWindowThreadProcessId(h, out p);
+            var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
+            if (p == pid && c.ToString() == cls) {
+                var t = new System.Text.StringBuilder(512); GetWindowText(h, t, 512);
+                found = t.ToString(); return false;
+            }
+            return true; }, IntPtr.Zero);
+        return found;
+    }
     public static string Describe(uint pid) {
         var sb = new System.Text.StringBuilder();
         EnumWindows((h, l) => {
@@ -62,11 +75,7 @@ function Save-Screen([string] $Name) {
 }
 
 function Get-Title([string] $Class) {
-    $h = [Win]::FindWindow($Class, $null)
-    if ($h -eq [IntPtr]::Zero) { return $null }
-    $sb = New-Object System.Text.StringBuilder 256
-    [void][Win]::GetWindowText($h, $sb, 256)
-    return $sb.ToString()
+    return [Win]::TitleOf([uint32]$p.Id, $Class)
 }
 
 $p = Start-Process -FilePath $Exe -ArgumentList '--demo' -PassThru
