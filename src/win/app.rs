@@ -125,6 +125,8 @@ pub fn run() {
 
     // --demo: "minutes" become seconds and the pop-up is on, for trying things out quickly.
     let demo = std::env::args().any(|a| a == "--demo");
+    // --start: begin a focus session straight away.
+    let auto_start = demo || std::env::args().any(|a| a == "--start");
     if !demo && activate_existing_instance() {
         return;
     }
@@ -192,7 +194,7 @@ pub fn run() {
             return fatal("WillPomo couldn't create its window.");
         }
     }
-    if demo {
+    if auto_start {
         app.start();
     }
 

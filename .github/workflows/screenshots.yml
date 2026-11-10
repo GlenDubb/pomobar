@@ -1,0 +1,37 @@
+name: Store screenshots
+
+# Run by hand (Actions > Store screenshots > Run workflow). Captures Store
+# screenshots on a clean Windows desktop and commits them to the
+# "store-screenshots" branch.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release --locked
+      - name: Capture
+        shell: pwsh
+        run: ./packaging/store-screenshots.ps1 -Exe target/release/pomobar.exe -OutDir shots
+      - uses: actions/upload-artifact@v7
+        with:
+          name: store-screenshots
+          path: shots/*.png
+      - name: Commit to the store-screenshots branch
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan store-screenshots
+          git rm -rf --cached . | Out-Null
+          git add shots/*.png
+          git commit -m "Store screenshots"
+          git push -f origin store-screenshots

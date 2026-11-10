@@ -1,0 +1,81 @@
+<#
+.SYNOPSIS
+    Captures Microsoft Store screenshots of WillPomo on a clean Windows desktop
+    (used by the "Store screenshots" GitHub workflow).
+#>
+param(
+    [Parameter(Mandatory)] [string] $Exe,
+    [string] $OutDir = 'store/screenshots'
+)
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force $OutDir | Out-Null
+Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class W {
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern bool SystemParametersInfo(int a, int b, string c, int d);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
+    [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+    [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+    public delegate bool EnumProc(IntPtr h, IntPtr l);
+    [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
+    public static IntPtr Find(uint pid, string cls) {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((h, l) => { uint p; GetWindowThreadProcessId(h, out p);
+            var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
+            if (p == pid && c.ToString() == cls) { found = h; return false; } return true; }, IntPtr.Zero);
+        return found;
+    }
+}
+'@
+
+# Bigger screen: the Store needs at least 1366x768.
+try { Set-DisplayResolution -Width 1920 -Height 1080 -Force -ErrorAction Stop; Write-Host 'Resolution set to 1920x1080' }
+catch { Write-Warning "Could not change resolution: $_" }
+Start-Sleep -Seconds 2
+
+# A calm gradient wallpaper in WillPomo's colours.
+$b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+$wall = Join-Path $env:TEMP 'willpomo-wall.png'
+$bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+$g = [System.Drawing.Graphics]::FromImage($bmp)
+$rect = New-Object System.Drawing.Rectangle 0, 0, $b.Width, $b.Height
+$brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect, ([System.Drawing.Color]::FromArgb(255, 250, 236, 228)), ([System.Drawing.Color]::FromArgb(255, 226, 238, 232)), 35.0
+$g.FillRectangle($brush, $rect); $bmp.Save($wall, [System.Drawing.Imaging.ImageFormat]::Png); $g.Dispose(); $bmp.Dispose()
+[void][W]::SystemParametersInfo(20, 0, $wall, 3)   # SPI_SETDESKWALLPAPER
+# Hide desktop icons for a clean shot.
+Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' HideIcons 1 -ErrorAction SilentlyContinue
+Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue   # restarts automatically
+Start-Sleep -Seconds 6
+# Minimise anything else that's open.
+(New-Object -ComObject Shell.Application).MinimizeAll(); Start-Sleep -Seconds 2
+
+function Shot([string] $Name) {
+    $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+    $g = [System.Drawing.Graphics]::FromImage($bmp)
+    $g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+    $bmp.Save((Join-Path $OutDir "$Name.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+    $g.Dispose(); $bmp.Dispose()
+    Write-Host "Saved $Name.png ($($b.Width)x$($b.Height))"
+}
+
+# 1. A focus session under way (taskbar shows progress + minutes badge).
+$p = Start-Process -FilePath $Exe -ArgumentList '--start' -PassThru
+Start-Sleep -Seconds 8
+$main = [W]::Find([uint32]$p.Id, 'WilliamsAutomation.WillPomo.Main')
+[void][W]::SetForegroundWindow($main); Start-Sleep -Seconds 1
+Shot '1-focus-session'
+
+# 2. Minimised: the mini timer above the taskbar.
+[void][W]::ShowWindow($main, 6); Start-Sleep -Seconds 3
+Shot '2-mini-timer'
+Stop-Process -Id $p.Id -Force; Start-Sleep -Seconds 2
+
+# 3. A session ending: the pop-up (demo mode shortens the session to seconds).
+$p = Start-Process -FilePath $Exe -ArgumentList '--demo' -PassThru
+Start-Sleep -Seconds 28
+Shot '3-session-complete-popup'
+Stop-Process -Id $p.Id -Force
