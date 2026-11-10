@@ -20,6 +20,8 @@ public static class W {
     [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll")] public static extern void mouse_event(uint f, int x, int y, uint d, UIntPtr e);
+    public static void ClickAt(int x, int y) { SetCursorPos(x, y); mouse_event(2, 0, 0, 0, UIntPtr.Zero); mouse_event(4, 0, 0, 0, UIntPtr.Zero); }
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string c, string t);
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
     [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
@@ -65,11 +67,13 @@ Start-Sleep -Seconds 6
 
 # Captures a 1600x900 region that includes the taskbar but not the bottom-right
 # corner, where Windows Server prints its edition watermark.
-function Shot([string] $Name, [int] $Left = 120) {
+function Shot([string] $Name, [int] $Left = 120, [switch] $ClickDesktop) {
     $keep = if ($p) { [uint32]$p.Id } else { [uint32]0 }
     [W]::CloseDialogs($keep)
     Get-Process SystemProperties*, SystemSettingsAdminFlows -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    [void][W]::SetCursorPos(960, 120)   # keep the pointer and tooltips out of the shot
+    # Clicking empty desktop moves keyboard focus off the taskbar (no Start tooltip).
+    if ($ClickDesktop) { [W]::ClickAt(1700, 150); Start-Sleep -Milliseconds 800 }
+    [void][W]::SetCursorPos(960, 120)   # keep the pointer out of the shot
     Start-Sleep -Milliseconds 800
     $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
     $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
@@ -97,7 +101,7 @@ Shot '1-focus-session'
 [void][W]::ShowWindow($main, 6); Start-Sleep -Seconds 3
 # Give focus to the desktop so the taskbar's Start button doesn't show a tooltip.
 [void][W]::SetForegroundWindow([W]::FindWindow('Progman', 'Program Manager')); Start-Sleep -Seconds 2
-Shot '2-mini-timer' -Left 0
+Shot '2-mini-timer' -Left 0 -ClickDesktop
 Stop-Process -Id $p.Id -Force; Start-Sleep -Seconds 2
 
 # 3. A session ending with the silent pop-up: a real 1-minute focus session.
@@ -106,5 +110,5 @@ New-Item -ItemType Directory -Force $dir | Out-Null
 "focus_minutes=1`nalert=silent_popup`n" | Set-Content (Join-Path $dir 'settings.ini')
 $p = Start-Process -FilePath $Exe -ArgumentList '--start' -PassThru
 Start-Sleep -Seconds 64
-Shot '3-session-complete-popup'
+Shot '3-session-complete-popup' -ClickDesktop
 Stop-Process -Id $p.Id -Force
