@@ -1,0 +1,12 @@
+/target
+/dist
+*.pfx
+*.cer
+*.msix
+*.msixbundle
+*.msixupload
+.vs/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

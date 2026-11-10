@@ -1,0 +1,69 @@
+name: Build
+
+# Runs on every push and pull request: tests, builds x64 + ARM64, packages the
+# MSIX bundle for the Microsoft Store, and launches the app on a real Windows
+# machine as a smoke test. Pushing a tag like v1.0.1 also creates a draft
+# GitHub release with the bundle attached.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write # only used to create draft releases for tags
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Add Rust targets
+        run: rustup target add x86_64-pc-windows-msvc aarch64-pc-windows-msvc
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Unit tests
+        run: cargo test --locked
+
+      - name: Lint
+        run: cargo clippy --locked --all-targets
+
+      - name: Build and package (x64 + ARM64)
+        shell: pwsh
+        run: ./packaging/build-msix.ps1
+
+      - name: Smoke test (launch, wait for a session to end, screenshots)
+        shell: pwsh
+        run: ./packaging/smoke-test.ps1 -Exe target/x86_64-pc-windows-msvc/release/pomobar.exe
+
+      - name: Upload Store package
+        uses: actions/upload-artifact@v7
+        with:
+          name: pomobar-store-package
+          path: dist/*.msixbundle
+          if-no-files-found: error
+
+      - name: Upload test build and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pomobar-test-build
+          path: |
+            target/x86_64-pc-windows-msvc/release/pomobar.exe
+            dist/*.msix
+            dist/screenshots/*.png
+          if-no-files-found: warn
+
+      - name: Draft a GitHub release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: dist/*.msixbundle
+          body: |
+            Store package for this version. Upload the .msixbundle to Partner Center
+            as a new submission (Microsoft signs it during certification).
