@@ -19,6 +19,7 @@ public static class W {
     [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
     [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+    [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
     public delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
     public static IntPtr Find(uint pid, string cls) {
@@ -52,14 +53,20 @@ Start-Sleep -Seconds 6
 # Minimise anything else that's open.
 (New-Object -ComObject Shell.Application).MinimizeAll(); Start-Sleep -Seconds 2
 
-function Shot([string] $Name) {
+# Captures a 1600x900 region that includes the taskbar but not the bottom-right
+# corner, where Windows Server prints its edition watermark.
+function Shot([string] $Name, [int] $Left = 120) {
+    [void][W]::SetCursorPos(960, 120)   # keep the pointer and tooltips out of the shot
+    Start-Sleep -Milliseconds 800
     $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
     $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
     $g = [System.Drawing.Graphics]::FromImage($bmp)
     $g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
-    $bmp.Save((Join-Path $OutDir "$Name.png"), [System.Drawing.Imaging.ImageFormat]::Png)
-    $g.Dispose(); $bmp.Dispose()
-    Write-Host "Saved $Name.png ($($b.Width)x$($b.Height))"
+    $w = [Math]::Min(1600, $b.Width); $h = [Math]::Min(900, $b.Height)
+    $crop = $bmp.Clone((New-Object System.Drawing.Rectangle $Left, ($b.Height - $h), $w, $h), $bmp.PixelFormat)
+    $crop.Save((Join-Path $OutDir "$Name.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+    $crop.Dispose(); $g.Dispose(); $bmp.Dispose()
+    Write-Host "Saved $Name.png (${w}x$h)"
 }
 
 # 1. A focus session under way (taskbar shows progress + minutes badge).
@@ -71,11 +78,14 @@ Shot '1-focus-session'
 
 # 2. Minimised: the mini timer above the taskbar.
 [void][W]::ShowWindow($main, 6); Start-Sleep -Seconds 3
-Shot '2-mini-timer'
+Shot '2-mini-timer' -Left 0
 Stop-Process -Id $p.Id -Force; Start-Sleep -Seconds 2
 
-# 3. A session ending: the pop-up (demo mode shortens the session to seconds).
-$p = Start-Process -FilePath $Exe -ArgumentList '--demo' -PassThru
-Start-Sleep -Seconds 28
+# 3. A session ending with the silent pop-up: a real 1-minute focus session.
+$dir = Join-Path $env:LOCALAPPDATA 'WillPomo'
+New-Item -ItemType Directory -Force $dir | Out-Null
+"focus_minutes=1`nalert=silent_popup`n" | Set-Content (Join-Path $dir 'settings.ini')
+$p = Start-Process -FilePath $Exe -ArgumentList '--start' -PassThru
+Start-Sleep -Seconds 64
 Shot '3-session-complete-popup'
 Stop-Process -Id $p.Id -Force
