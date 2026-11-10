@@ -21,6 +21,15 @@ public static class W {
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string c, string t);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+    // Close stray system message boxes (class #32770) that aren't ours.
+    public static void CloseDialogs(uint keepPid) {
+        EnumWindows((h, l) => { uint p; GetWindowThreadProcessId(h, out p);
+            var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
+            if (p != keepPid && IsWindowVisible(h) && c.ToString() == "#32770") PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero);
+            return true; }, IntPtr.Zero);
+    }
     public delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
     public static IntPtr Find(uint pid, string cls) {
@@ -57,6 +66,8 @@ Start-Sleep -Seconds 6
 # Captures a 1600x900 region that includes the taskbar but not the bottom-right
 # corner, where Windows Server prints its edition watermark.
 function Shot([string] $Name, [int] $Left = 120) {
+    $keep = if ($p) { [uint32]$p.Id } else { [uint32]0 }
+    [W]::CloseDialogs($keep)
     [void][W]::SetCursorPos(960, 120)   # keep the pointer and tooltips out of the shot
     Start-Sleep -Milliseconds 800
     $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
